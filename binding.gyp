@@ -1,20 +1,16 @@
 {
   "targets": [
     {
-      "target_name": "audio_module",
-      "type": "shared_library",
+      "target_name": "audio_capture",
       "sources": [
         "src/native/audio_capture.cpp",
+        "src/native/wasapi_manager.cpp",
         "src/native/device_enumerator.cpp",
-        "src/native/wasapi_client.cpp",
-        "src/native/audio_module.cpp"
+        "src/native/audio_processor.cpp"
       ],
       "include_dirs": [
         "<!(node -e \"console.log(require('node-addon-api').include)\")",
         "src/native/include"
-      ],
-      "dependencies": [
-        "<!(node -e \"console.log(require('node-addon-api').gyp)\")"
       ],
       "defines": [
         "NAPI_DISABLE_CPP_EXCEPTIONS",
@@ -23,39 +19,24 @@
         "WIN32_LEAN_AND_MEAN",
         "NOMINMAX"
       ],
-      "cflags_cc": [
-        "/std:c++17",
-        "/EHsc"
+      "cflags!": ["-fno-exceptions"],
+      "cflags_cc!": ["-fno-exceptions"],
+      "libraries": [
+        "-lole32",
+        "-loleaut32",
+        "-luuid",
+        "-lwinmm",
+        "-lksuser"
       ],
       "conditions": [
-        [
-          "OS=='win'",
-          {
-            "libraries": [
-              "ole32.lib",
-              "oleaut32.lib",
-              "winmm.lib",
-              "ksuser.lib",
-              "avrt.lib"
-            ],
-            "msvs_settings": {
-              "VCCLCompilerTool": {
-                "AdditionalOptions": [
-                  "/std:c++17"
-                ]
-              },
-              "VCLinkerTool": {
-                "AdditionalDependencies": [
-                  "ole32.lib",
-                  "oleaut32.lib",
-                  "winmm.lib",
-                  "ksuser.lib",
-                  "avrt.lib"
-                ]
-              }
+        ["OS=='win'", {
+          "msvs_settings": {
+            "VCCLCompilerTool": {
+              "ExceptionHandling": 1,
+              "AdditionalOptions": ["/std:c++17"]
             }
           }
-        ]
+        }]
       ]
     }
   ]
